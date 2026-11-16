@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LCC Hari Pahlawan - SMP Negeri 2 Purwosari</title>
+  <!-- Pustaka SheetJS untuk Ekspor Excel (.xlsx) -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #2563eb;
+      --secondary: #d97706;
+      --accent: #dc2626;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --success: #16a34a;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+    header {
+      background: linear-gradient(135deg, var(--primary), #0f172a);
+      color: white;
+      padding: 18px 20px;
+      text-align: center;
+      border-bottom: 4px solid var(--secondary);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .school-logo {
+      width: 74px;
+      height: 74px;
+      object-fit: contain;
+      background: white;
+      border-radius: 50%;
+      padding: 6px;
+      border: 3px solid var(--secondary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    header h1 { margin: 0; font-size: 1.4rem; letter-spacing: 0.5px; text-transform: uppercase; }
+    header p { margin: 2px 0 0; font-size: 0.95rem; color: #fde68a; font-weight: 600; }
+    .container { max-width: 900px; width: 100%; margin: 20px auto; padding: 0 16px 40px; flex: 1; }
+    .nav-bar { display: flex; justify-content: flex-end; margin-bottom: 14px; gap: 8px; }
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    h2, h3 { margin-top: 0; color: var(--primary); }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.92rem; }
+    input[type="text"], input[type="password"], input[type="number"], select, textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary-light); }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 11px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--primary-light); color: white; }
+    .btn-secondary { background: var(--secondary); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--accent); color: white; }
+    .btn-outline { background: white; border: 1.5px solid #cbd5e1; color: var(--text); }
+    .btn-sm { padding: 7px 12px; font-size: 0.85rem; }
+    .btn-block { width: 100%; }
+    .hidden { display: none !important; }
+
+    /* Quiz Styling */
+    .quiz-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: #eff6ff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      border: 1px solid #bfdbfe;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-gold { background: #fef3c7; color: #b45309; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .question-text { font-size: 1.12rem; font-weight: 600; line-height: 1.55; margin-bottom: 18px; }
+    .options-grid { display: grid; gap: 10px; }
+    .option-btn {
+      text-align: left;
+      padding: 14px 16px;
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s;
+    }
+    .option-btn:hover { border-color: var(--primary-light); background: #eff6ff; }
+    .option-btn.selected { border-color: var(--primary-light); background: #dbeafe; font-weight: 600; }
+    .opt-letter {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Tabs in Admin */
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 18px; }
+    .tab-btn { background: #e2e8f0; color: var(--text); border: none; padding: 9px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .tab-btn.active { background: var(--primary); color: white; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { background: #f8fafc; color: var(--primary); font-weight: 700; }
+    tr:hover td { background: #f8fafc; }
+
+    .q-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: #fafafa;
+    }
+    .q-item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      text-align: center;
+      padding: 14px 16px;
+      font-size: 0.88rem;
+      letter-spacing: 0.5px;
+      border-top: 1px solid #1e293b;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img id="schoolLogoDisplay" class="school-logo" alt="Logo SMPN 2 Purwosari" />
+    <div>
+      <h1 id="schoolNameDisplay">SMP NEGERI 2 PURWOSARI</h1>
+      <p id="quizTitleDisplay">Lomba Cerdas Cermat dalam Rangka Memperingati Hari Pahlawan</p>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="nav-bar">
+    <button id="btnModeSiswa" class="btn btn-outline btn-sm hidden" onclick="switchView('student')">← Halaman Peserta</button>
+    <button id="btnModeGuru" class="btn btn-secondary btn-sm" onclick="openAdminLogin()">🔒 Mode Guru / Admin</button>
+  </div>
+
+  <!-- VIEW 1: PENDAFTARAN PESERTA -->
+  <div id="viewStudentStart" class="card">
+    <h2>Pendaftaran Regu Peserta</h2>
+    <p style="color:var(--muted); margin-top:-6px; margin-bottom:16px;">Silakan pilih kelas, tahap perlombaan, dan masukkan password yang diberikan panitia/guru.</p>
+
+    <div class="form-group">
+      <label for="inputKelas">Pilih Kelas (6 Kelas)</label>
+      <select id="inputKelas">
+        <option value="">-- Pilih Kelas --</option>
+        <optgroup label="Kelas VII">
+          <option value="VII A">VII A</option>
+          <option value="VII B">VII B</option>
+        </optgroup>
+        <optgroup label="Kelas VIII">
+          <option value="VIII A">VIII A</option>
+          <option value="VIII B">VIII B</option>
+        </optgroup>
+        <optgroup label="Kelas IX">
+          <option value="IX A">IX A</option>
+          <option value="IX B">IX B</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="inputNamaRegu">Nama Anggota Regu / Perwakilan (Opsional)</label>
+      <input type="text" id="inputNamaRegu" placeholder="Contoh: Regu Garuda (Andi, Budi, Citra)" />
+    </div>
+
+    <div class="form-group">
+      <label for="selectTahap">Pilih Tahap / Mata Pelajaran</label>
+      <select id="selectTahap" onchange="checkStagePasswordUI()"></select>
+    </div>
+
+    <div class="form-group" id="stagePassGroup">
+      <label for="inputStagePass">Password Akses Tahap</label>
+      <input type="password" id="inputStagePass" placeholder="Masukkan password dari guru..." />
+    </div>
+
+    <button class="btn btn-primary btn-block" onclick="startQuiz()">Mulai Mengerjakan Soal ▶</button>
+  </div>
+
+  <!-- VIEW 2: AREA KUIS -->
+  <div id="viewQuiz" class="card hidden">
+    <div class="quiz-top">
+      <div>
+        <span class="badge badge-blue" id="quizInfoKelas">Kelas</span>
+        <span class="badge badge-gold" id="quizInfoTahap">Tahap</span>
+      </div>
+      <div style="font-weight:700; color:var(--primary);">
+        Soal <span id="qCurrentNum">1</span> / <span id="qTotalNum">25</span>
+      </div>
+    </div>
+
+    <div class="question-text" id="questionText">Memuat soal...</div>
+    <div class="options-grid" id="optionsContainer"></div>
+
+    <div style="display:flex; justify-content:space-between; margin-top:22px; gap:10px;">
+      <button class="btn btn-outline" id="btnPrevQ" onclick="prevQuestion()">← Sebelumnya</button>
+      <button class="btn btn-primary" id="btnNextQ" onclick="nextQuestion()">Selanjutnya →</button>
+      <button class="btn btn-success hidden" id="btnFinishQ" onclick="finishQuiz()">Selesai & Kirim Jawaban ✔</button>
+    </div>
+  </div>
+
+  <!-- VIEW 3: HASIL PESERTA -->
+  <div id="viewResult" class="card hidden" style="text-align:center;">
+    <h2>🎉 Hasil Lomba Cerdas Cermat</h2>
+    <p id="resReguInfo" style="font-size:1.05rem; font-weight:600; color:var(--muted);"></p>
+    <div style="background:#eff6ff; border:2px solid #bfdbfe; border-radius:14px; padding:22px; max-width:360px; margin:18px auto;">
+      <div style="font-size:0.9rem; color:var(--primary); font-weight:700;">SKOR AKHIR</div>
+      <div id="resScore" style="font-size:3rem; font-weight:800; color:var(--primary-light); line-height:1.1; margin:6px 0;">0</div>
+      <div id="resDetail" style="font-size:0.92rem; color:var(--text);">Benar: 0 | Salah: 0</div>
+    </div>
+    <p style="font-size:0.9rem; color:var(--muted);">Nilai Anda telah tersimpan otomatis ke papan peringkat panitia/guru.</p>
+    <button class="btn btn-primary" onclick="resetToHome()">Kembali ke Halaman Awal</button>
+  </div>
+
+  <!-- VIEW 4: ADMIN / MODE GURU -->
+  <div id="viewAdmin" class="card hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+      <h2 style="margin:0;">⚙️ Panel Guru & Panitia LCC</h2>
+      <button class="btn btn-outline btn-sm" onclick="switchView('student')">Keluar Mode Guru</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tabBtnRekap" onclick="switchAdminTab('rekap')">🏆 Rekap & Ranking</button>
+      <button class="tab-btn" id="tabBtnSoal" onclick="switchAdminTab('soal')">📚 Bank Soal (<span id="countSoalBadge">50</span>)</button>
+      <button class="tab-btn" id="tabBtnSandi" onclick="switchAdminTab('sandi')">🔑 Sandi & Identitas</button>
+    </div>
+
+    <!-- TAB 1: REKAP & RANKING -->
+    <div id="adminTabRekap">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+        <div style="min-width:240px;">
+          <label for="filterRekapTahap" style="margin-bottom:4px;">Filter Tahap Perlombaan:</label>
+          <select id="filterRekapTahap" onchange="renderLeaderboard()"></select>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-success btn-sm" onclick="exportExcel()">📥 Ekspor Excel (.xlsx)</button>
+          <button class="btn btn-danger btn-sm" onclick="clearLeaderboard()">🗑️ Reset Rekap Nilai</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Kelas</th>
+              <th>Nama Regu</th>
+              <th>Benar</th>
+              <th>Skor</th>
+              <th>Status Kelolosan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: BANK SOAL -->
+    <div id="adminTabSoal" class="hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px; background:#f8fafc; padding:12px; border-radius:10px; border:1px solid var(--border);">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="exportJSON()">📤 Ekspor Soal (JSON)</button>
+          <label class="btn btn-outline btn-sm" style="margin:0; cursor:pointer;">
+            📥 Impor Soal (JSON)
+            <input type="file" accept=".json" style="display:none;" onchange="importJSON(event)" />
+          </label>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="restoreDefaultQuestions()">↺ Pulihkan 50 Soal PPKn</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllQuestions()">🗑️ Hapus Semua Soal</button>
+        </div>
+      </div>
+
+      <div style="background:#eff6ff; padding:16px; border-radius:10px; border:1px solid #bfdbfe; margin-bottom:18px;">
+        <h3 id="formSoalTitle" style="margin-bottom:10px;">+ Tambah / Edit Soal</h3>
+        <input type="hidden" id="editSoalIndex" value="-1" />
+        <div class="form-group">
+          <label>Kategori / Tahap</label>
+          <input type="text" id="soalCategory" placeholder="Contoh: PPKn - Tahap 1 (Penyisihan)" />
+        </div>
+        <div class="form-group">
+          <label>Pertanyaan</label>
+          <textarea id="soalQuestion" rows="2" placeholder="Tulis pertanyaan di sini..."></textarea>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:12px;">
+          <div><label>Pilihan A</label><input type="text" id="optA" /></div>
+          <div><label>Pilihan B</label><input type="text" id="optB" /></div>
+          <div><label>Pilihan C</label><input type="text" id="optC" /></div>
+          <div><label>Pilihan D</label><input type="text" id="optD" /></div>
+        </div>
+        <div class="form-group">
+          <label>Kunci Jawaban Benar</label>
+          <select id="soalAnswer">
+            <option value="0">A</option>
+            <option value="1">B</option>
+            <option value="2">C</option>
+            <option value="3">D</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-primary" onclick="saveQuestion()">Simpan Soal</button>
+          <button class="btn btn-outline hidden" id="btnCancelEdit" onclick="cancelEditQuestion()">Batal Edit</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label>Filter Tampilan Bank Soal:</label>
+        <select id="filterBankSoal" onchange="renderQuestionList()"></select>
+      </div>
+      <div id="questionListContainer"></div>
+    </div>
+
+    <!-- TAB 3: SANDI & IDENTITAS -->
+    <div id="adminTabSandi" class="hidden">
+      <h3>🔐 Atur Password per Tahap / Kategori</h3>
+      <p style="font-size:0.9rem; color:var(--muted);">Kosongkan jika tahap tidak memerlukan password. Atur password akses untuk setiap tahap. Password tidak ditampilkan kepada peserta.</p>
+      <div id="stagePasswordSettings"></div>
+      <button class="btn btn-primary" style="margin-bottom:24px;" onclick="saveStagePasswords()">Simpan Password Tahap</button>
+
+      <hr style="border:none; border-top:1px solid var(--border); margin:20px 0;" />
+
+      <h3>🏫 Identitas Sekolah & Logo</h3>
+      <div class="form-group">
+        <label>Nama Sekolah</label>
+        <input type="text" id="settingSchoolName" />
+      </div>
+      <div class="form-group">
+        <label>Judul Perlombaan</label>
+        <input type="text" id="settingQuizTitle" />
+      </div>
+      <div class="form-group">
+        <label>Unggah Logo Sekolah Baru (PNG/JPG)</label>
+        <input type="file" accept="image/*" onchange="uploadSchoolLogo(event)" />
+      </div>
+      <div class="form-group">
+        <label>Ubah PIN Mode Guru</label>
+        <input type="text" id="settingAdminPin" maxlength="10" />
+      </div>
+      <button class="btn btn-success" onclick="saveGeneralSettings()">Simpan Pengaturan Sekolah & PIN</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Aplikasi LCC Hari Pahlawan Powered by @Kusworo 2026
+</footer>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyrSw3-80mGKOcsJiTnHyr-aSoDeP5zvf4znOLSBQo95LOTJZkDi45CtXGwzJuXJtf2/exec';
+const DEFAULT_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><path d="M60 6 L108 24 V62 C108 90 86 108 60 116 C34 108 12 90 12 62 V24 Z" fill="#1e3a8a" stroke="#d97706" stroke-width="6"/><circle cx="60" cy="54" r="24" fill="#fef3c7" stroke="#d97706" stroke-width="3"/><polygon points="60,34 65,48 80,48 68,57 72,71 60,62 48,71 52,57 40,48 55,48" fill="#d97706"/><text x="60" y="96" font-family="Arial" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">SMPN 2 PURWOSARI</text></svg>`);
+let questions=[], leaderboard=[], settings={schoolName:'SMP NEGERI 2 PURWOSARI',quizTitle:'Lomba Cerdas Cermat dalam Rangka Memperingati Hari Pahlawan',logo:'',stagePasswords:{}}, adminToken='', studentToken='', activeQuiz={kelas:'',namaRegu:'',tahap:'',items:[],answers:[],currentIndex:0};
+const $=id=>document.getElementById(id); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function jsonp(action,params={}){return new Promise((resolve,reject)=>{if(!API_URL||API_URL.includes('GANTI_DENGAN'))return reject(new Error('URL Web App Apps Script belum dipasang di Index.html.'));const cb='lccCb'+Date.now()+Math.floor(Math.random()*10000),u=new URL(API_URL);u.searchParams.set('action',action);u.searchParams.set('callback',cb);Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));const s=document.createElement('script');const timer=setTimeout(()=>{delete window[cb];s.remove();reject(new Error('Server tidak merespons. Periksa URL/deployment Apps Script.'));},15000);window[cb]=data=>{clearTimeout(timer);delete window[cb];s.remove();resolve(data)};s.onerror=()=>{clearTimeout(timer);delete window[cb];s.remove();reject(new Error('Gagal menghubungi server Apps Script.'))};s.src=u.toString();document.body.appendChild(s);});}
+function post(action,payload={}){return new Promise((resolve,reject)=>{if(!API_URL||API_URL.includes('GANTI_DENGAN'))return reject(new Error('URL Web App Apps Script belum dipasang di Index.html.'));const id=crypto.randomUUID?crypto.randomUUID():('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)}));const frame=document.createElement('iframe');frame.name='lccPost'+id;frame.style.display='none';document.body.appendChild(frame);const form=document.createElement('form');form.method='POST';form.action=API_URL;form.target=frame.name;form.style.display='none';[['requestId',id],['action',action],['payload',JSON.stringify(payload)]].forEach(([name,value])=>{const x=document.createElement('input');x.type='hidden';x.name=name;x.value=value;form.appendChild(x)});document.body.appendChild(form);let tries=0;const poll=async()=>{try{const r=await jsonp('status',{requestId:id});if(r.ready){form.remove();frame.remove();return resolve(r.result)}if(++tries>35){form.remove();frame.remove();return reject(new Error('Permintaan belum mendapat konfirmasi. Periksa koneksi, lalu muat ulang data.'))}setTimeout(poll,700)}catch(e){form.remove();frame.remove();reject(e)}};form.submit();setTimeout(poll,700);});}
+async function api(action,payload){const r=await post(action,payload);if(!r||!r.ok)throw new Error(r?.message||'Operasi gagal.');return r;}
+function showError(e){alert(e.message||String(e));}
+function applyBranding(){ $('schoolNameDisplay').textContent=settings.schoolName||'SMP NEGERI 2 PURWOSARI';$('quizTitleDisplay').textContent=settings.quizTitle||'Lomba Cerdas Cermat';$('schoolLogoDisplay').src=settings.logo||DEFAULT_LOGO; }
+function populateCategoryDropdowns(){const cats=[...new Set(questions.map(q=>q.category))];$('selectTahap').innerHTML='<option value="">-- Pilih Tahap --</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');$('filterRekapTahap').innerHTML='<option value="ALL">Semua Tahap</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');$('filterBankSoal').innerHTML='<option value="ALL">Semua Kategori (${questions.length} soal)</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');$('countSoalBadge').textContent=questions.length;checkStagePasswordUI();}
+function checkStagePasswordUI(){ $('stagePassGroup').classList.toggle('hidden',!$('selectTahap').value); }
+async function refreshPublic(){const r=await jsonp('init');if(!r.ok)throw new Error(r.message);settings.schoolName=r.schoolName;settings.quizTitle=r.quizTitle;settings.logo=r.logo||'';applyBranding();$('selectTahap').innerHTML='<option value="">-- Pilih Tahap --</option>'+r.stages.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');checkStagePasswordUI();}
+async function startQuiz(){const kelas=$('inputKelas').value,tahap=$('selectTahap').value,password=$('inputStagePass').value,namaRegu=$('inputNamaRegu').value.trim();if(!kelas||!tahap)return alert('Silakan pilih kelas dan tahap.');try{const r=await api('studentStart',{kelas,tahap,password,namaRegu});studentToken=r.token;activeQuiz={kelas:r.kelas,namaRegu:r.namaRegu,tahap:r.tahap,items:r.questions,answers:new Array(r.questions.length).fill(-1),currentIndex:0};$('viewStudentStart').classList.add('hidden');$('viewQuiz').classList.remove('hidden');$('quizInfoKelas').textContent=kelas;$('quizInfoTahap').textContent=tahap;$('qTotalNum').textContent=r.questions.length;renderQuestion();}catch(e){showError(e)}}
+function renderQuestion(){const i=activeQuiz.currentIndex,q=activeQuiz.items[i];$('qCurrentNum').textContent=i+1;$('questionText').textContent=q.question;$('optionsContainer').innerHTML=q.options.map((o,idx)=>`<button class="option-btn ${activeQuiz.answers[i]===idx?'selected':''}" onclick="selectOption(${idx})"><span class="opt-letter">${'ABCD'[idx]}</span><span>${esc(o)}</span></button>`).join('');$('btnPrevQ').disabled=i===0;$('btnNextQ').classList.toggle('hidden',i===activeQuiz.items.length-1);$('btnFinishQ').classList.toggle('hidden',i!==activeQuiz.items.length-1);}
+function selectOption(i){activeQuiz.answers[activeQuiz.currentIndex]=i;renderQuestion();}function prevQuestion(){if(activeQuiz.currentIndex>0){activeQuiz.currentIndex--;renderQuestion()}}function nextQuestion(){if(activeQuiz.currentIndex<activeQuiz.items.length-1){activeQuiz.currentIndex++;renderQuestion()}}
+async function finishQuiz(){if(activeQuiz.answers.some(a=>a<0)&&!confirm('Masih ada soal yang belum dijawab. Tetap kirim jawaban?'))return;const b=$('btnFinishQ');b.disabled=true;try{const r=await api('submitQuiz',{token:studentToken,answers:activeQuiz.items.map((q,i)=>({id:q.id,answer:activeQuiz.answers[i]}))});$('viewQuiz').classList.add('hidden');$('viewResult').classList.remove('hidden');$('resReguInfo').textContent=`${r.namaRegu} • ${r.kelas} • ${r.tahap}`;$('resScore').textContent=r.skor;$('resDetail').textContent=`Benar: ${r.benar} | Salah: ${r.total-r.benar} | Total: ${r.total}`;}catch(e){showError(e)}finally{b.disabled=false}}
+function resetToHome(){['viewQuiz','viewResult'].forEach(id=>$(id).classList.add('hidden'));$('viewStudentStart').classList.remove('hidden');$('inputStagePass').value='';studentToken='';}
+async function openAdminLogin(){const pin=prompt('Masukkan PIN Guru / Admin:');if(pin===null)return;try{const r=await api('adminLogin',{pin});adminToken=r.token;await loadAdminData();switchView('admin');switchAdminTab('rekap');}catch(e){showError(e)}}
+function switchView(view){$('viewStudentStart').classList.toggle('hidden',view!=='student');$('viewQuiz').classList.add('hidden');$('viewResult').classList.add('hidden');$('viewAdmin').classList.toggle('hidden',view!=='admin');$('btnModeSiswa').classList.toggle('hidden',view!=='admin');$('btnModeGuru').classList.toggle('hidden',view==='admin');}
+async function loadAdminData(){const r=await api('adminData',{token:adminToken});questions=r.questions;leaderboard=r.results;settings=r.settings;applyBranding();populateCategoryDropdowns();renderLeaderboard();renderQuestionList();loadSettingsForm();}
+function switchAdminTab(tab){['rekap','soal','sandi'].forEach(t=>{$('adminTab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('hidden',t!==tab);$('tabBtn'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);});if(tab==='rekap')renderLeaderboard();if(tab==='soal')renderQuestionList();if(tab==='sandi')loadSettingsForm();}
+function renderLeaderboard(){const filter=$('filterRekapTahap').value||'ALL';const sorted=[...leaderboard].sort((a,b)=>a.tahap.localeCompare(b.tahap)||b.skor-a.skor||b.benar-a.benar);const rankById={};const countByStage={};sorted.forEach(r=>{countByStage[r.tahap]=(countByStage[r.tahap]||0)+1;rankById[r.id]=countByStage[r.tahap]});const rows=sorted.filter(x=>filter==='ALL'||x.tahap===filter);$('leaderboardBody').innerHTML=rows.length?rows.map(r=>{const rank=rankById[r.id];let status='Peserta';if(r.tahap.includes('Tahap 1'))status=rank<=3?'LOLOS TAHAP 2':'Gugur Penyisihan';else if(r.tahap.includes('Tahap 2'))status=rank===1?'JUARA 1':rank===2?'JUARA 2':rank===3?'JUARA 3':'Finalis';return `<tr><td><b>#${rank}</b></td><td>${esc(r.kelas)}</td><td>${esc(r.namaRegu)}<br><small>${esc(r.tahap)}</small></td><td>${r.benar}/${r.total}</td><td><b>${r.skor}</b></td><td>${status}</td><td><button class="btn btn-danger btn-sm" onclick="deleteScore('${r.id}')">Hapus</button></td></tr>`}).join(''):'<tr><td colspan="7" style="text-align:center">Belum ada hasil.</td></tr>'; }
+async function adminOp(op,data={}){await api('adminAction',{token:adminToken,op,...data});await loadAdminData();}
+async function deleteScore(id){if(confirm('Hapus data nilai regu ini?'))try{await adminOp('deleteResult',{id})}catch(e){showError(e)}}async function clearLeaderboard(){if(confirm('Yakin menghapus seluruh rekap nilai?'))try{await adminOp('clearResults')}catch(e){showError(e)}}
+function exportExcel(){if(!leaderboard.length)return alert('Belum ada data untuk diekspor.');if(!window.XLSX)return alert('Pustaka ekspor Excel belum termuat.');const data=[...leaderboard].sort((a,b)=>b.skor-a.skor).map((r,i)=>({'Peringkat':i+1,'Kelas':r.kelas,'Nama Regu':r.namaRegu,'Tahap':r.tahap,'Jawaban Benar':r.benar,'Total Soal':r.total,'Skor Akhir':r.skor,'Waktu':r.timestamp}));const ws=XLSX.utils.json_to_sheet(data),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Rekap LCC');XLSX.writeFile(wb,'Rekap_LCC_Hari_Pahlawan.xlsx');}
+function renderQuestionList(){const f=$('filterBankSoal').value||'ALL';const list=questions.map((q,idx)=>({...q,idx})).filter(q=>f==='ALL'||q.category===f);$('questionListContainer').innerHTML=list.length?list.map((q,i)=>`<div class="q-item"><div class="q-item-header"><div><span class="badge badge-blue">${esc(q.category)}</span><strong style="display:block;margin-top:6px">${i+1}. ${esc(q.question)}</strong></div><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="editQuestion('${q.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteQuestion('${q.id}')">Hapus</button></div></div><div style="font-size:.9rem;color:var(--muted)">${q.options.map((o,j)=>`<span style="margin-right:12px;${j===q.answer?'color:var(--success);font-weight:700':''}">${'ABCD'[j]}. ${esc(o)}</span>`).join('')}</div></div>`).join(''):'<p style="text-align:center;padding:20px">Bank soal kosong.</p>';}
+async function saveQuestion(){const id=$('editSoalIndex').value,category=$('soalCategory').value.trim(),question=$('soalQuestion').value.trim(),options=['optA','optB','optC','optD'].map(x=>$(x).value.trim()),answer=Number($('soalAnswer').value);if(!category||!question||options.some(x=>!x))return alert('Lengkapi semua data soal.');try{await adminOp('saveQuestion',{question:{id:id||'',category,question,options,answer}});cancelEditQuestion()}catch(e){showError(e)}}
+function editQuestion(id){const q=questions.find(x=>x.id===id);if(!q)return;$('editSoalIndex').value=q.id;$('formSoalTitle').textContent='✏️ Edit Soal';$('soalCategory').value=q.category;$('soalQuestion').value=q.question;['optA','optB','optC','optD'].forEach((x,i)=>$(x).value=q.options[i]);$('soalAnswer').value=q.answer;$('btnCancelEdit').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
+function cancelEditQuestion(){$('editSoalIndex').value='';$('formSoalTitle').textContent='+ Tambah / Edit Soal';$('soalCategory').value='';$('soalQuestion').value='';['optA','optB','optC','optD'].forEach(x=>$(x).value='');$('soalAnswer').value='0';$('btnCancelEdit').classList.add('hidden');}
+async function deleteQuestion(id){if(confirm('Hapus soal ini?'))try{await adminOp('deleteQuestion',{id})}catch(e){showError(e)}}async function deleteAllQuestions(){if(confirm('Hapus seluruh bank soal?'))try{await adminOp('deleteAllQuestions')}catch(e){showError(e)}}async function restoreDefaultQuestions(){if(confirm('Pulihkan 50 soal bawaan?'))try{await adminOp('restoreDefaults')}catch(e){showError(e)}}
+function exportJSON(){const blob=new Blob([JSON.stringify(questions,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Bank_Soal_LCC.json';a.click();URL.revokeObjectURL(a.href)}
+function importJSON(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async e=>{try{const arr=JSON.parse(e.target.result);if(!Array.isArray(arr))throw Error();await adminOp('importQuestions',{questions:arr});alert('Bank soal berhasil diimpor.')}catch(err){showError(err)}};reader.readAsText(file);event.target.value='';}
+function loadSettingsForm(){const cats=[...new Set(questions.map(q=>q.category))];$('stagePasswordSettings').innerHTML=cats.map(c=>`<div class="form-group"><label>Password untuk: ${esc(c)}</label><input type="text" class="stage-pass-input" data-cat="${esc(c)}" value="${esc(settings.stagePasswords?.[c]||'')}" placeholder="Kosongkan jika tanpa password" /></div>`).join('');$('settingSchoolName').value=settings.schoolName||'';$('settingQuizTitle').value=settings.quizTitle||'';$('settingAdminPin').value='';}
+async function saveStagePasswords(){const p={};document.querySelectorAll('.stage-pass-input').forEach(x=>p[x.dataset.cat]=x.value.trim());try{await adminOp('saveStagePasswords',{stagePasswords:p});alert('Password tahap berhasil disimpan.')}catch(e){showError(e)}}
+function uploadSchoolLogo(event){const file=event.target.files[0];if(!file)return;if(file.size>3*1024*1024)return alert('Ukuran logo maksimal 3 MB.');const img=new Image(),url=URL.createObjectURL(file);img.onload=async()=>{const canvas=document.createElement('canvas'),scale=Math.min(1,600/Math.max(img.width,img.height));canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);const logo=canvas.toDataURL('image/jpeg',.82);URL.revokeObjectURL(url);try{await adminOp('saveGeneralSettings',{schoolName:$('settingSchoolName').value,quizTitle:$('settingQuizTitle').value,logo});alert('Logo berhasil diperbarui.')}catch(e){showError(e)}};img.src=url;}
+async function saveGeneralSettings(){try{await adminOp('saveGeneralSettings',{schoolName:$('settingSchoolName').value,quizTitle:$('settingQuizTitle').value,newPin:$('settingAdminPin').value||undefined});alert('Identitas dan PIN berhasil disimpan. PIN kosong berarti tidak diubah.')}catch(e){showError(e)}}
+(async()=>{try{await refreshPublic();}catch(e){console.error(e);alert(e.message)}})();
+</script>
+</body>
+</html>
